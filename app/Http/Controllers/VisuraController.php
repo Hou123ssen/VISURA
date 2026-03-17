@@ -11,36 +11,20 @@ class VisuraController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        $search = $request->get('search');
-        $category = $request->get('category');
+  public function index(Request $request)
+{
+    $search   = $request->get('search');
+    $category = $request->get('category');
 
-        $query = Visura::query();
+    $query = Visura::query();
+    if ($search)                        $query->where('photographer_name', 'like', '%'.$search.'%');
+    if ($category && $category !== 'all') $query->where('type', $category);
 
-        
-        if ($search) {
-            $query->where('photographer_name', 'like', '%' . $search . '%');
-        }
+    $photos = $query->latest()->get(); 
+    $categories = Visura::select('type')->distinct()->pluck('type')->toArray();
 
-       
-        if ($category && $category !== 'all') {
-            $query->where('type', $category);
-        }
-
-        $photos = $query->latest()->get();
-          $photos = Visura::latest()->get();
-
-    $categories = Visura::select('type')
-                        ->distinct()
-                        ->pluck('type')
-                        ->toArray();
-
-
-
-        return view('visura.index', compact('photos', 'search', 'category' , 'categories'));
-    }
-
+    return view('visura.index', compact('photos', 'search', 'category', 'categories'));
+}
     /**
      * Show the form for creating a new resource.
      */

@@ -29,7 +29,7 @@
                     </svg>
                     Edit
                 </button>
-                <form method="POST" action="{{ route('photos.destroy', $photo->id) }}" onsubmit="return confirm('Delete this photo?')">
+action="{{ route('visura.destroy', $photo->id) }}"
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors">

@@ -13,7 +13,7 @@
         <p id="modalSubtitle" class="text-gray-400 text-sm mb-7">Share your work with the world</p>
 
         {{-- Upload Form --}}
-        <form id="uploadForm" method="POST" action="{{ route('photos.store') }}" enctype="multipart/form-data">
+action="{{ route('visura.store') }}"
             @csrf
             <input type="hidden" name="_method" value="POST" id="methodOverride">
 

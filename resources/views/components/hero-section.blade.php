@@ -1,534 +1,208 @@
+{{-- ══ HERO ══ --}}
+<section class="relative min-h-screen flex items-center pt-20 overflow-hidden">
 
+    {{-- Diffuse ambient bg --}}
+    <div class="absolute inset-0 pointer-events-none"
+        style="background:radial-gradient(ellipse 65% 55% at 15% 50%,rgba(139,92,246,0.07) 0%,transparent 100%);"></div>
+    <div class="absolute inset-0 pointer-events-none"
+        style="background:radial-gradient(ellipse 50% 60% at 85% 55%,rgba(59,130,246,0.05) 0%,transparent 100%);"></div>
 
-@props(['categories' => []])
+    <div class="max-w-7xl mx-auto px-6 w-full">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
 
-{{-- ── Styles ──────────────────────────────────────────────────────── --}}
-<style>
-  /* ── Reset & Variables ── */
-  .cat-carousel-section {
-    --accent:       #7c3aed;
-    --accent-light: #ede9fe;
-    --accent-mid:   #a78bfa;
-    --card-w:       280px;
-    --card-h:       360px;
-    font-family: 'DM Sans', sans-serif;
-  }
+            {{-- ══ LEFT: Text ══ --}}
+            <div>
 
-  /* ── Perspective Stage ── */
-  .cat-stage-wrap   { perspective: 1100px; perspective-origin: 50% 45%; }
-  .cat-track        { transform-style: preserve-3d; display: flex; align-items: center;
-                      justify-content: center; min-height: calc(var(--card-h) + 80px);
-                      position: relative; }
+                {{-- Eyebrow --}}
+                <div
+                    class="pill inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs text-violet-300 tracking-widest uppercase mb-8 fade-up d1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+                    Professional Photography
+                </div>
 
-  /* ── Individual Slide ── */
-  .cat-slide {
-    position: absolute;
-    width:  var(--card-w);
-    flex-shrink: 0;
-    transform-style: preserve-3d;
-    will-change: transform, opacity, filter;
-    cursor: pointer;
-  }
+                {{-- Name / Title --}}
+                <h1 class="font-display font-extrabold leading-none mb-4 fade-up d2"
+                    style="font-size:clamp(2.6rem,6.5vw,5rem);">
+                    <span class="text-white block tracking-tight">VISURA</span>
+                    <span class="grad-text block tracking-tight">STUDIO</span>
+                </h1>
 
-  /* ── Card Shell ── */
-  .cat-card {
-    width: 100%;
-    border-radius: 20px;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: 0 8px 32px rgba(124,58,237,.10);
-    border: 1px solid rgba(124,58,237,.08);
-    transform-style: preserve-3d;
-    transition: box-shadow .4s ease;
-    position: relative;
-  }
-  .cat-slide[data-state="active"] .cat-card {
-    box-shadow: 0 24px 64px rgba(124,58,237,.22), 0 4px 16px rgba(124,58,237,.12);
-  }
+                {{-- Tagline --}}
+                <p class="font-display font-semibold text-xl mb-6 fade-up d2"
+                    style="color:rgba(255,255,255,0.35);letter-spacing:.04em;">
+                    Capturing Light. Framing Stories.
+                </p>
 
-  /* ── Image area ── */
-  .cat-img-wrap {
-    width: 100%;
-    height: 220px;
-    overflow: hidden;
-    position: relative;
-    background: var(--accent-light);
-  }
-  .cat-img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform .6s cubic-bezier(.25,.46,.45,.94);
-  }
-  .cat-slide[data-state="active"] .cat-card:hover .cat-img { transform: scale(1.07); }
+                <p class="text-[#A1A1AA] text-sm leading-relaxed max-w-md mb-10 fade-up d3">
+                    A personal portfolio showcasing fine art photography — from sweeping landscapes to intimate
+                    portraits. Every frame is a world waiting to be discovered.
+                </p>
 
-  /* gradient overlay */
-  .cat-img-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(60,10,100,.55) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity .35s;
-  }
-  .cat-slide[data-state="active"] .cat-card:hover .cat-img-overlay { opacity: 1; }
+                {{-- CTA Buttons --}}
+                <div class="flex items-center gap-4 flex-wrap fade-up d4">
+                    <button onclick="openModal()"
+                        class="btn-primary px-8 py-3.5 rounded-full font-semibold tracking-wide text-sm">
+                        Upload Photo
+                    </button>
+                    <button onclick="document.getElementById('gallery-section').scrollIntoView({behavior:'smooth'})"
+                        class="btn-ghost px-8 py-3.5 rounded-full text-sm font-medium tracking-wide">
+                        View Gallery
+                    </button>
+                </div>
 
-  /* skeleton loader */
-  .cat-skeleton {
-    position: absolute; inset: 0;
-    background: linear-gradient(90deg, #f3f0ff 25%, #e9e4ff 50%, #f3f0ff 75%);
-    background-size: 200% 100%;
-    animation: catShimmer 1.4s infinite;
-  }
-  @keyframes catShimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-  .cat-img.loaded + .cat-skeleton,
-  .cat-skeleton.done { display: none; }
-
-  /* ── Footer ── */
-  .cat-card-footer {
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .cat-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: .95rem;
-    color: #1a1a2e;
-    letter-spacing: .01em;
-  }
-  .cat-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--accent-light);
-    color: var(--accent);
-    font-size: .68rem;
-    font-weight: 600;
-    padding: 5px 11px;
-    border-radius: 99px;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-  }
-  .cat-pill svg { width: 10px; height: 10px; }
-
-  /* ── Section header ── */
-  .cat-header { text-align: center; margin-bottom: 56px; }
-  .cat-eyebrow {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--accent-light); color: var(--accent);
-    font-size: .7rem; font-weight: 600;
-    padding: 7px 16px; border-radius: 99px;
-    letter-spacing: .15em; text-transform: uppercase;
-    margin-bottom: 18px;
-  }
-  .cat-eyebrow-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--accent); animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
-
-  .cat-main-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    color: #111;
-    line-height: 1.1;
-    margin-bottom: 14px;
-  }
-  .cat-main-title span {
-    background: linear-gradient(135deg, #7c3aed, #a855f7, #ec4899);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .cat-subtitle {
-    color: #9ca3af; font-size: .9rem; max-width: 400px; margin: 0 auto;
-    line-height: 1.7;
-  }
-
-  /* ── Nav buttons ── */
-  .cat-nav {
-    position: absolute; top: 50%; z-index: 20;
-    transform: translateY(-50%);
-    width: 46px; height: 46px; border-radius: 50%;
-    background: #fff;
-    border: 1.5px solid rgba(124,58,237,.18);
-    display: flex; align-items: center; justify-content: center;
-    color: #6b7280; cursor: pointer;
-    box-shadow: 0 4px 20px rgba(124,58,237,.10);
-    transition: all .25s;
-  }
-  .cat-nav:hover { background: var(--accent); color: #fff; border-color: var(--accent);
-                   box-shadow: 0 6px 24px rgba(124,58,237,.35); transform: translateY(-50%) scale(1.08); }
-  .cat-nav:disabled { opacity: .3; pointer-events: none; }
-  .cat-nav-prev { left: 0; }
-  .cat-nav-next { right: 0; }
-
-  /* ── Dots ── */
-  .cat-dots { display: flex; justify-content: center; gap: 8px; margin-top: 36px; }
-  .cat-dot {
-    width: 8px; height: 8px; border-radius: 99px;
-    background: #ddd6fe; border: none; cursor: pointer;
-    transition: all .3s cubic-bezier(.34,1.56,.64,1);
-  }
-  .cat-dot.active { width: 26px; background: var(--accent); }
-
-  /* ── Autoplay button ── */
-  .cat-autoplay-btn {
-    display: flex; align-items: center; gap: 6px;
-    margin: 16px auto 0; background: none; border: none;
-    color: #9ca3af; font-size: .72rem; font-weight: 500;
-    letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
-    transition: color .25s;
-  }
-  .cat-autoplay-btn:hover { color: var(--accent); }
-
-  /* ── Progress bar ── */
-  .cat-progress-bar {
-    height: 2px; background: var(--accent-light);
-    border-radius: 2px; overflow: hidden;
-    margin: 20px auto 0; max-width: 200px; display: none;
-  }
-  .cat-progress-bar.visible { display: block; }
-  .cat-progress-fill {
-    height: 100%; background: var(--accent);
-    border-radius: 2px; width: 0%;
-    transition: width linear;
-  }
-
-  /* ── Responsive ── */
-  @media (max-width: 640px) {
-    .cat-carousel-section { --card-w: 230px; --card-h: 300px; }
-    .cat-img-wrap { height: 180px; }
-    .cat-nav { width: 38px; height: 38px; }
-  }
-</style>
-
-{{-- ── Markup ──────────────────────────────────────────────────────── --}}
-<section class="cat-carousel-section py-24 px-6 overflow-hidden">
-  <div class="max-w-6xl mx-auto">
-
-    {{-- Header --}}
-    <div class="cat-header" id="catHeader">
-      <div class="cat-eyebrow">
-        <span class="cat-eyebrow-dot"></span>
-        Discover
-      </div>
-      <h2 class="cat-main-title">
-        Browse <span>Categories</span>
-      </h2>
-      <p class="cat-subtitle">
-        Explore photography across every genre — from sweeping landscapes to intimate portraits.
-      </p>
-    </div>
-
-    {{-- Stage --}}
-    <div style="position:relative; padding: 0 52px;" id="catStageOuter">
-
-      {{-- Prev --}}
-      <button class="cat-nav cat-nav-prev" id="catPrev" aria-label="Previous">
-        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/>
-        </svg>
-      </button>
-
-      {{-- Track --}}
-      <div class="cat-stage-wrap">
-        <div class="cat-track" id="catTrack">
-
-          @php
-            // Unsplash Source — free, no API key, query by keyword
-            $unsplashBase = 'https://source.unsplash.com/560x440/?';
-            // Fallback seeds so each category always gets a unique consistent image
-            $seeds = ['photo', 'camera', 'light', 'color', 'art', 'visual', 'nature', 'city'];
-          @endphp
-
-@foreach($categories as $i => $category)
-          @php
-            $label = $category;
-            $imgUrl = 'https://placehold.co/560x440/ede9fe/7c3aed?text=' . urlencode($label) . '&font=roboto';
-          @endphp
-          <div class="cat-slide"
-               data-index="{{ $i }}"
-               data-label="{{ $label }}"
-               role="group"
-               aria-roledescription="slide"
-               aria-label="{{ $label }}">
-
-            <div class="cat-card">
-
-              {{-- Image --}}
-              <div class="cat-img-wrap">
-                <div class="cat-skeleton" id="skel-{{ $i }}"></div>
-                <img
-                  class="cat-img"
-                  data-src="{{ $imgUrl }}"
-                  alt="{{ $label }} photography"
-                  width="560" height="440"
-                  loading="lazy"
-                  onload="this.classList.add('loaded'); document.getElementById('skel-{{ $i }}').style.display='none';"
-                  onerror="this.src='https://placehold.co/560x440/ede9fe/7c3aed?text={{ urlencode($label) }}'; document.getElementById('skel-{{ $i }}').style.display='none';"
-                />
-                <div class="cat-img-overlay"></div>
-              </div>
-
-              {{-- Footer --}}
-              <div class="cat-card-footer">
-                <span class="cat-title">{{ $label }}</span>
-                <span class="cat-pill">
-                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                  </svg>
-                  Explore
-                </span>
-              </div>
+                {{-- Stats --}}
+                <div class="flex items-center gap-10 mt-14 pt-10 fade-up d4"
+                    style="border-top:1px solid rgba(255,255,255,0.06);">
+                    <div>
+                        {{ $photos?->count() ?? 0 }}
+                        <div class="text-xs text-[#A1A1AA] tracking-widest uppercase mt-1">Photos</div>
+                    </div>
+                    <div class="w-px h-10" style="background:rgba(255,255,255,0.08);"></div>
+                    <div> 
+                        {{ $categories?->count() ?? 0 }}
+                        <div class="text-xs text-[#A1A1AA] tracking-widest uppercase mt-1">Photographers</div>
+                    </div>
+                    <div class="w-px h-10" style="background:rgba(255,255,255,0.08);"></div>
+                    <div>
+                        {{ count($categories ?? []) }}
+                        <div class="text-xs text-[#A1A1AA] tracking-widest uppercase mt-1">Categories</div>
+                    </div>
+                </div>
 
             </div>
-          </div>
-          @endforeach
+
+            {{-- ══ RIGHT: Floating Cards with REAL images ══ --}}
+            <div class="relative h-[560px] hidden lg:block" id="heroCards">
+
+                {{-- ── Card A — top right ── --}}
+                <div class="hero-card absolute top-0 right-6 w-48 h-64 rounded-2xl overflow-hidden"
+                    style="transform:rotate(3deg);animation:heroFloat 6s ease-in-out infinite;">
+                    <img src="https://picsum.photos/seed/portrait1/384/512" alt="Portrait photography"
+                        class="hero-img w-full h-full object-cover" loading="eager"
+                        onload="this.classList.add('loaded')"
+                        onerror="this.parentElement.style.background='linear-gradient(145deg,#1a103a,#2d1b69)'" />
+                    {{-- overlay --}}
+                    <div class="absolute inset-0 pointer-events-none"
+                        style="background:linear-gradient(to top,rgba(10,8,25,0.92) 0%,rgba(10,8,25,0.15) 50%,transparent 100%);">
+                    </div>
+                    {{-- label --}}
+                    <div class="absolute bottom-0 left-0 right-0 p-3">
+                        <div class="text-xs mb-0.5" style="color:#A1A1AA;">Portrait</div>
+                        <div class="text-sm font-display font-bold text-white">Series I</div>
+                    </div>
+                    {{-- top badge --}}
+                    <div class="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                        style="background:rgba(10,8,25,0.65);border:1px solid rgba(139,92,246,0.25);backdrop-filter:blur(8px);">
+                        <span class="w-1.5 h-1.5 rounded-full"
+                            style="background:#a78bfa;box-shadow:0 0 5px #a78bfa;"></span>
+                        <span class="text-xs font-medium" style="color:rgba(255,255,255,0.7);">Featured</span>
+                    </div>
+                </div>
+
+                {{-- ── Card B — left center (tallest) ── --}}
+                <div class="hero-card absolute top-20 left-0 w-52 h-72 rounded-2xl overflow-hidden"
+                    style="transform:rotate(-2deg);animation:heroFloat 7s ease-in-out infinite;animation-delay:1.8s;">
+                    <img src="https://picsum.photos/seed/landscape2/416/576" alt="Landscape photography"
+                        class="hero-img w-full h-full object-cover" loading="eager"
+                        onload="this.classList.add('loaded')"
+                        onerror="this.parentElement.style.background='linear-gradient(145deg,#0f1f3a,#1a3a6b)'" />
+                    <div class="absolute inset-0 pointer-events-none"
+                        style="background:linear-gradient(to top,rgba(10,8,25,0.92) 0%,rgba(10,8,25,0.1) 55%,transparent 100%);">
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 p-3">
+                        <div class="text-xs mb-0.5" style="color:#A1A1AA;">Landscape</div>
+                        <div class="text-sm font-display font-bold text-white">Series II</div>
+                    </div>
+                    <div class="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                        style="background:rgba(10,8,25,0.65);border:1px solid rgba(59,130,246,0.25);backdrop-filter:blur(8px);">
+                        <span class="w-1.5 h-1.5 rounded-full"
+                            style="background:#60a5fa;box-shadow:0 0 5px #60a5fa;"></span>
+                        <span class="text-xs font-medium" style="color:rgba(255,255,255,0.7);">New</span>
+                    </div>
+                </div>
+
+                {{-- ── Card C — bottom right ── --}}
+                <div class="hero-card absolute bottom-4 right-0 w-44 h-56 rounded-2xl overflow-hidden"
+                    style="transform:rotate(1.5deg);animation:heroFloat 5.5s ease-in-out infinite;animation-delay:0.9s;">
+                    <img src="https://picsum.photos/seed/nature3/352/448" alt="Nature photography"
+                        class="hero-img w-full h-full object-cover" loading="eager"
+                        onload="this.classList.add('loaded')"
+                        onerror="this.parentElement.style.background='linear-gradient(145deg,#1f0f28,#3a1055)'" />
+                    <div class="absolute inset-0 pointer-events-none"
+                        style="background:linear-gradient(to top,rgba(10,8,25,0.92) 0%,rgba(10,8,25,0.12) 55%,transparent 100%);">
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 p-3">
+                        <div class="text-xs mb-0.5" style="color:#A1A1AA;">Nature</div>
+                        <div class="text-sm font-display font-bold text-white">Series III</div>
+                    </div>
+                    <div class="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                        style="background:rgba(10,8,25,0.65);border:1px solid rgba(236,72,153,0.25);backdrop-filter:blur(8px);">
+                        <span class="w-1.5 h-1.5 rounded-full"
+                            style="background:#f472b6;box-shadow:0 0 5px #f472b6;"></span>
+                        <span class="text-xs font-medium" style="color:rgba(255,255,255,0.7);">Popular</span>
+                    </div>
+                </div>
+
+                {{-- ── Card D — center (small accent card) ── --}}
+                <div class="hero-card absolute w-36 h-44 rounded-2xl overflow-hidden"
+                    style="top:38%;left:30%;transform:rotate(-1deg);animation:heroFloat 8s ease-in-out infinite;animation-delay:3s;z-index:5;">
+                    <img src="https://picsum.photos/seed/street4/288/352" alt="Street photography"
+                        class="hero-img w-full h-full object-cover" loading="eager"
+                        onload="this.classList.add('loaded')"
+                        onerror="this.parentElement.style.background='linear-gradient(145deg,#12202a,#1a3040)'" />
+                    <div class="absolute inset-0 pointer-events-none"
+                        style="background:linear-gradient(to top,rgba(10,8,25,0.92) 0%,rgba(10,8,25,0.1) 60%,transparent 100%);">
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 p-3">
+                        <div class="text-xs mb-0.5" style="color:#A1A1AA;">Street</div>
+                        <div class="text-sm font-display font-bold text-white">Series IV</div>
+                    </div>
+                </div>
+
+              
+            </div>
 
         </div>
-      </div>
-
-      {{-- Next --}}
-      <button class="cat-nav cat-nav-next" id="catNext" aria-label="Next">
-        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/>
-        </svg>
-      </button>
     </div>
-
-    {{-- Dots --}}
-    <div class="cat-dots" id="catDots">
-      @foreach($categories as $i => $cat)
-        <button class="cat-dot {{ $i===0?'active':'' }}" data-goto="{{ $i }}" aria-label="Slide {{ $i+1 }}"></button>
-      @endforeach
-    </div>
-
-    {{-- Progress + Autoplay --}}
-    <div class="cat-progress-bar" id="catProgress">
-      <div class="cat-progress-fill" id="catProgressFill"></div>
-    </div>
-
-    <button class="cat-autoplay-btn" id="catAutoplayBtn">
-      <svg id="catAutoplayIcon" width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      <span id="catAutoplayLabel">Autoplay</span>
-    </button>
-
-  </div>
 </section>
 
+{{-- ── Hero card styles ── --}}
+<style>
+    @keyframes heroFloat {
 
-{{-- ── JavaScript ──────────────────────────────────────────────────── --}}
-<script type="module">
-import { animate, stagger, inView } from 'https://cdn.jsdelivr.net/npm/motion@10.18.0/dist/motion.js';
+        0%,
+        100% {
+            transform: translateY(0) rotate(var(--rot, 0deg));
+        }
 
-// ─── Lazy load images ───────────────────────────────────────────────
-document.querySelectorAll('.cat-img[data-src]').forEach(img => {
-  img.src = img.dataset.src;
-});
+        50% {
+            transform: translateY(-16px) rotate(var(--rot, 0deg));
+        }
+    }
 
-// ─── Config ─────────────────────────────────────────────────────────
-const CFG = {
-  autoplayDelay:    3800,
-  transitionDur:    0.58,
-  // [far-left2, far-left, center, far-right, far-right2]
-  positions: [
-    { tx: -530, tz: -210, ry: 30,  s: 0.70, o: 0.25 },
-    { tx: -265, tz: -95,  ry: 15,  s: 0.85, o: 0.60 },
-    { tx:    0, tz:   0,  ry:  0,  s: 1.00, o: 1.00 },
-    { tx:  265, tz: -95,  ry: -15, s: 0.85, o: 0.60 },
-    { tx:  530, tz: -210, ry: -30, s: 0.70, o: 0.25 },
-  ],
-  hidden: { tx: 0, tz: -500, ry: 0, s: 0.4, o: 0 },
-};
+    .hero-card {
+        background: #1E1E1E;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        box-shadow:
+            0 16px 48px rgba(0, 0, 0, 0.6),
+            0 2px 8px rgba(0, 0, 0, 0.4);
+        transition: box-shadow .4s ease;
+    }
 
-const EASING = [0.34, 1.56, 0.64, 1]; // spring
+    .hero-card:hover {
+        box-shadow:
+            0 24px 64px rgba(0, 0, 0, 0.7),
+            0 0 0 1px rgba(139, 92, 246, 0.25),
+            0 0 40px rgba(139, 92, 246, 0.1);
+    }
 
-// ─── State ──────────────────────────────────────────────────────────
-const slides      = [...document.querySelectorAll('.cat-slide')];
-const dots        = [...document.querySelectorAll('.cat-dot')];
-const btnPrev     = document.getElementById('catPrev');
-const btnNext     = document.getElementById('catNext');
-const progressBar = document.getElementById('catProgress');
-const progressFil = document.getElementById('catProgressFill');
-const total       = slides.length;
-let   current     = 0;
-let   autoTimer   = null;
-let   isAuto      = false;
-let   progAnim    = null;
+    /* Image fade-in on load */
+    .hero-img {
+        opacity: 0;
+        transition: opacity .6s ease;
+    }
 
-// ─── Position mapping ────────────────────────────────────────────────
-function stateOf(i) {
-  const d = ((i - current) % total + total) % total;
-  const n = d > total / 2 ? d - total : d;
-  // map n to position index [−2,−1,0,1,2]
-  if (n ===  0) return 2;   // center
-  if (n === -1) return 1;   // left
-  if (n ===  1) return 3;   // right
-  if (n === -2) return 0;   // far left
-  if (n ===  2) return 4;   // far right
-  return -1;                // hidden
-}
-
-// ─── Animate one slide ───────────────────────────────────────────────
-function animSlide(slide, posIdx) {
-  const p   = posIdx === -1 ? CFG.hidden : CFG.positions[posIdx];
-  const dur = CFG.transitionDur;
-
-  slide.dataset.state = posIdx === 2 ? 'active'
-                      : posIdx === -1 ? 'hidden'
-                      : Math.abs(posIdx - 2) === 1 ? 'side' : 'far';
-
-  // z-index via style (not animatable via Motion)
-  slide.style.zIndex = posIdx === -1 ? '0'
-                     : posIdx === 2 ? '10'
-                     : Math.abs(posIdx - 2) === 1 ? '6' : '3';
-
-  animate(slide, {
-    x:       `${p.tx}px`,
-    z:       `${p.tz}px`,
-    rotateY: `${p.ry}deg`,
-    scale:    p.s,
-    opacity:  p.o,
-  }, {
-    duration: dur,
-    easing:   EASING,
-  });
-
-  // subtle card tilt reset on active
-  const card = slide.querySelector('.cat-card');
-  if (card) {
-    animate(card, { rotateX: posIdx === 2 ? '0deg' : '2deg' },
-      { duration: dur * 0.8, easing: 'ease-out' });
-  }
-}
-
-// ─── Render all slides ───────────────────────────────────────────────
-function render(instant = false) {
-  slides.forEach((s, i) => animSlide(s, stateOf(i)));
-  dots.forEach((d, i) => d.classList.toggle('active', i === current));
-}
-
-// ─── Navigate ───────────────────────────────────────────────────────
-function goTo(idx) {
-  current = ((idx % total) + total) % total;
-  render();
-}
-function next() { goTo(current + 1); }
-function prev() { goTo(current - 1); }
-
-// ─── Autoplay ────────────────────────────────────────────────────────
-function startAuto() {
-  isAuto = true;
-  progressBar.classList.add('visible');
-  updateAutoBtn();
-  animateProgress();
-  autoTimer = setInterval(() => { next(); animateProgress(); }, CFG.autoplayDelay);
-}
-function stopAuto() {
-  isAuto = false;
-  clearInterval(autoTimer);
-  progressBar.classList.remove('visible');
-  updateAutoBtn();
-  if (progAnim) progAnim.stop?.();
-}
-function resetAuto() { if (isAuto) { stopAuto(); startAuto(); } }
-
-function animateProgress() {
-  if (progAnim) progAnim.stop?.();
-  progressFil.style.width = '0%';
-  progAnim = animate(progressFil, { width: '100%' }, { duration: CFG.autoplayDelay / 1000, easing: 'linear' });
-}
-
-function updateAutoBtn() {
-  document.getElementById('catAutoplayIcon').innerHTML = isAuto
-    ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
-    : '<path d="M8 5v14l11-7z"/>';
-  document.getElementById('catAutoplayLabel').textContent = isAuto ? 'Pause' : 'Autoplay';
-}
-
-// ─── Events ─────────────────────────────────────────────────────────
-btnNext.addEventListener('click', () => { next(); resetAuto(); });
-btnPrev.addEventListener('click', () => { prev(); resetAuto(); });
-
-dots.forEach(d => d.addEventListener('click', () => {
-  goTo(parseInt(d.dataset.goto)); resetAuto();
-}));
-
-document.getElementById('catAutoplayBtn').addEventListener('click', () => {
-  isAuto ? stopAuto() : startAuto();
-});
-
-// Keyboard
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight') { next(); resetAuto(); }
-  if (e.key === 'ArrowLeft')  { prev(); resetAuto(); }
-});
-
-// Touch / Swipe
-let tx0 = 0;
-const track = document.getElementById('catTrack');
-track.addEventListener('touchstart', e => { tx0 = e.touches[0].clientX; }, { passive: true });
-track.addEventListener('touchend',   e => {
-  const dx = tx0 - e.changedTouches[0].clientX;
-  if (Math.abs(dx) > 45) { dx > 0 ? next() : prev(); resetAuto(); }
-});
-
-// Hover tilt on active card
-slides.forEach(slide => {
-  const card = slide.querySelector('.cat-card');
-  if (!card) return;
-  card.addEventListener('mousemove', e => {
-    if (slide.dataset.state !== 'active') return;
-    const r    = card.getBoundingClientRect();
-    const relX = (e.clientX - r.left) / r.width  - 0.5;
-    const relY = (e.clientY - r.top)  / r.height - 0.5;
-    animate(card, {
-      rotateX: `${-relY * 8}deg`,
-      rotateY: `${relX  * 8}deg`,
-    }, { duration: 0.2, easing: 'ease-out' });
-  });
-  card.addEventListener('mouseleave', () => {
-    if (slide.dataset.state !== 'active') return;
-    animate(card, { rotateX: '0deg', rotateY: '0deg' },
-      { duration: 0.5, easing: [0.34, 1.56, 0.64, 1] });
-  });
-});
-
-// ─── Entrance animations ─────────────────────────────────────────────
-inView('#catHeader', ({ target }) => {
-  animate(target.children,
-    { opacity: [0, 1], y: [24, 0] },
-    { duration: 0.65, delay: stagger(0.12), easing: 'ease-out' });
-});
-
-inView('#catStageOuter', ({ target }) => {
-  animate(target, { opacity: [0, 1] }, { duration: 0.5, easing: 'ease-out' });
-  // stagger slide entrance
-  setTimeout(() => {
-    slides.forEach((s, i) => {
-      const pos = stateOf(i);
-      if (pos !== -1) {
-        animate(s, { opacity: [0, CFG.positions[pos]?.o ?? 0] },
-          { duration: 0.6, delay: Math.abs(pos - 2) * 0.09, easing: 'ease-out' });
-      }
-    });
-  }, 100);
-});
-
-// ─── Init ────────────────────────────────────────────────────────────
-// Set initial positions without animation
-slides.forEach((s, i) => {
-  const pos = stateOf(i);
-  const p   = pos === -1 ? CFG.hidden : CFG.positions[pos];
-  s.style.transform = `translateX(${p.tx}px) translateZ(${p.tz}px) rotateY(${p.ry}deg) scale(${p.s})`;
-  s.style.opacity   = `${p.o}`;
-  s.style.zIndex    = pos === 2 ? '10' : pos === -1 ? '0' : Math.abs(pos - 2) === 1 ? '6' : '3';
-  s.dataset.state   = pos === 2 ? 'active' : pos === -1 ? 'hidden' : Math.abs(pos - 2) === 1 ? 'side' : 'far';
-});
-
-dots[0]?.classList.add('active');
-</script>
+    .hero-img.loaded {
+        opacity: 1;
+    }
+</style>
