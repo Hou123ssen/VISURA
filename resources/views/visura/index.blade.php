@@ -5,7 +5,7 @@
 @section('content')
     <x-navbar />
 
-    <x-hero-section :photos="$photos" />
+<x-hero-section :categories="$categories" />
 
     <x-gallery-section :photos="$photos" />
 

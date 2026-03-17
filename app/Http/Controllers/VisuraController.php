@@ -29,8 +29,16 @@ class VisuraController extends Controller
         }
 
         $photos = $query->latest()->get();
+          $photos = Visura::latest()->get();
 
-        return view('visura.index', compact('photos', 'search', 'category'));
+    $categories = Visura::select('type')
+                        ->distinct()
+                        ->pluck('type')
+                        ->toArray();
+
+
+
+        return view('visura.index', compact('photos', 'search', 'category' , 'categories'));
     }
 
     /**
@@ -40,7 +48,7 @@ class VisuraController extends Controller
     {
         //
     }
-
+   
     /**
      * Store a newly created resource in storage.
      */
